@@ -1,5 +1,9 @@
 # VoltammoMan
 
+<p align="center">
+  <img src="docs/voltammoman.jpg" alt="VoltammoMan" width="600">
+</p>
+
 Batch evaluation of cyclic voltammograms. Point it at a folder of exported curves and get one
 table with the peak potentials, peak currents, peak separation and reversibility of every curve,
 together with a control plot of each evaluation.
