@@ -24,6 +24,10 @@ classifiers = [
     "Topic :: Scientific/Engineering :: Chemistry",
 ]
 
+[project.urls]
+Homepage = "https://github.com/LLapsus/VoltammoMan"
+Issues = "https://github.com/LLapsus/VoltammoMan/issues"
+
 [project.optional-dependencies]
 gui = ["gradio>=4.0"]
 test = ["pytest>=7"]

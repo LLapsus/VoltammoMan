@@ -18,14 +18,14 @@ together with a control plot of each evaluation.
 Python ≥ 3.10 is required.
 
 ```bash
-pip install "voltammoman[gui] @ git+https://gitlab.mff.cuni.cz/balazpav/voltammoman.git"
+pip install "voltammoman[gui] @ git+https://github.com/LLapsus/VoltammoMan.git"
 ```
 
 or from a local copy:
 
 ```bash
-git clone https://gitlab.mff.cuni.cz/balazpav/voltammoman.git
-cd voltammoman
+git clone https://github.com/LLapsus/VoltammoMan.git
+cd VoltammoMan
 python -m venv .venv
 .venv/bin/pip install -e ".[gui]"        # Windows: .venv\Scripts\pip install -e ".[gui]"
 ```
