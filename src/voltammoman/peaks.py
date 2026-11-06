@@ -5,9 +5,10 @@ recorded *before* the peak (the capacitive / background region) and extrapolate 
 peak:
 
 ``flattest`` (default)
-    least-squares line through the most linear window of width ``width`` V in the background
-    region (at least ``gap`` V before the peak); among windows that are about equally linear,
-    the one closest to the peak is used. Most accurate on simulated curves and closest to
+    least-squares line through the straightest window of width ``width`` V in the background
+    region (at least ``gap`` V before the peak). Straightness is the curvature (sagitta) of a
+    parabola fitted to the window; among windows that are equally straight within the
+    uncertainty of that estimate, the one closest to the peak is used. Most accurate on simulated curves and closest to
     manually evaluated NOVA values.
 ``linear``
     least-squares line through a fixed window ``base_from``..``base_to`` V before the peak
@@ -87,29 +88,32 @@ def _baseline(E, I, k, sign, method, s: PeakSettings):
     if len(region) < s.min_points:
         return None, None
     if method == "flattest":
-        # Windows are compared on the smoothed current, so that noise does not decide which
-        # window is the most linear; the line itself is fitted to the raw current.
-        Is = _smooth(I, s.smooth)
         Er = E[region]
         span = abs(Er[-1] - Er[0])
         if span <= s.width:
             sel = region
         else:
-            wins = []  # (distance of the window from the peak, rms of a line fit, indices)
+            # For each window, fit a parabola to the raw current and measure its curvature as the
+            # sagitta |a| (w/2)^2, i.e. how far the curve departs from a straight line, together
+            # with the standard error of that estimate (from the noise of the fit).
+            wins = []  # (distance from the peak, sagitta, its standard error, indices)
             for lo in np.arange(0, span - s.width + 1e-12, s.width / 4):
                 w = region[(sign * (Er - Er[0]) >= lo) & (sign * (Er - Er[0]) <= lo + s.width)]
-                if len(w) < s.min_points:
+                if len(w) < max(s.min_points, 4):
                     continue
-                coef = np.polyfit(E[w], Is[w], 1)
-                rms = np.sqrt(np.mean((Is[w] - np.polyval(coef, E[w])) ** 2))
-                wins.append((before[w].min(), rms, w))
+                x = E[w] - E[w].mean()
+                h2 = ((x.max() - x.min()) / 2) ** 2
+                A = np.c_[x**2, x, np.ones_like(x)]
+                coef, *_ = np.linalg.lstsq(A, I[w], rcond=None)
+                sigma2 = np.sum((I[w] - A @ coef) ** 2) / (len(w) - 3)
+                se = np.sqrt(sigma2 * np.linalg.inv(A.T @ A)[0, 0]) * h2
+                wins.append((before[w].min(), abs(coef[0]) * h2, se, w))
             if not wins:
                 return None, None
-            # Among the windows that are about as linear as the best one (within the noise left
-            # after smoothing), take the one closest to the peak.
-            noise = np.std(I[region] - Is[region])
-            tol = 1.5 * min(w[1] for w in wins) + 0.3 * noise
-            sel = min((w for w in wins if w[1] <= tol), key=lambda w: w[0])[2]
+            # Windows that are as straight as the straightest one, up to its curvature and their
+            # own uncertainty, are equally good; of these, take the one closest to the peak.
+            best = min(w[1] for w in wins)
+            sel = min((w for w in wins if w[1] <= 1.5 * best + w[2]), key=lambda w: w[0])[3]
         return _line_fit(E[sel], I[sel]), (E[sel].min(), E[sel].max())
 
     if method == "tangent":

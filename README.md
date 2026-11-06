@@ -65,6 +65,9 @@ df = analyze_files("path/to/curves", baseline="flattest")
 save_table(df, "results.xlsx")
 ```
 
+A step-by-step tutorial of the Python interface (single curves, batches, flags, baseline
+methods, the simulator) is in the notebook [`examples/tutorial.ipynb`](examples/tutorial.ipynb).
+
 ## Command line
 
 | Command | What it does |
@@ -133,14 +136,15 @@ currents in A.
 3. **Baseline.** A straight line is fitted to the background before the peak and extrapolated
    under it; the peak is then refined to the extremum of the baseline-corrected current within
    ±20 mV and the baseline is rebuilt. Methods:
-   - `flattest` (default): the most linear window of width `width` (0.1 V) in the region ending
-     `gap` (0.1 V) before the peak; among equally linear windows the one closest to the peak,
+   - `flattest` (default): the straightest window of width `width` (0.1 V) in the region ending
+     `gap` (0.1 V) before the peak, judged by the curvature of a parabola fitted to it; among
+     windows that are equally straight within the noise, the one closest to the peak,
    - `linear`: a fixed window from `base_from` (0.35 V) to `base_to` (0.15 V) before the peak,
    - `tangent`: the tangent at the point where the curve rises least steeply towards the peak.
 4. **Ratio.** `ratio` divides the two baseline-corrected peak currents. For the peak recorded
    second, the true baseline is the decaying current of the first peak, not a straight line, so
-   this ratio is biased (about 0.9 for a perfectly reversible simulated couple). `ratio_nicholson`
-   uses Nicholson's formula (R. S. Nicholson, *Anal. Chem.* 38 (1966) 1406),
+   this ratio drifts away from 1 when the peaks are broad (slow electron transfer).
+   `ratio_nicholson` uses Nicholson's formula (R. S. Nicholson, *Anal. Chem.* 38 (1966) 1406),
 
    i_rev / i_fwd = (i_rev)₀ / i_fwd + 0.485 (i_sp)₀ / i_fwd + 0.086,
 
@@ -152,17 +156,23 @@ currents in A.
 ## Accuracy
 
 On simulated curves (fast to slow electron transfer, with charging current, sloped background,
-offset and noise) the default method reproduces peak potentials within a few mV, peak currents
-within a few per cent and gives `ratio_nicholson` = 1.00 ± 0.06 for a stable redox couple. On
-≈ 500 measured curves of 3D-printed carbon electrodes it agrees with manual evaluation in NOVA
-within a median of 2.4 mV (peak potentials); the median peak currents differ by 1–6 %.
+offset and noise) the default method finds the same peak potentials as without the background
+(within a few mV) and peak currents that typically change by only a few per cent. For a chemically
+stable couple `ratio_nicholson` stays within 0.9–1.1, while `ratio` drops to ≈ 0.8 for slow
+electron transfer (ΔEp ≈ 200 mV). On ≈ 500 measured
+curves of 3D-printed carbon electrodes it agrees with manual evaluation in NOVA within a median of
+2.4 mV (peak potentials); the median peak currents differ by 2–4 %.
 
 ## Limitations
 
 - One redox couple per curve; multiple peaks or shoulders are not resolved (the most prominent
   peak is taken).
 - Linear baselines only; very broad peaks (e.g. poorly activated electrodes) have an ill-defined
-  peak current and are flagged `broad_peak`.
+  peak current and are flagged `broad_peak`. For slow electron transfer (ΔEp ≳ 300 mV) the wave
+  starts so early that every linear baseline is uncertain; peak currents can then differ by
+  10–40 % between methods (`flattest` and `linear` tend to give lower values than `tangent`).
+- Nicholson's formula was derived for reversible waves; for slow electron transfer it is an
+  approximation (±10 %).
 - No iR correction, no scan-rate studies (Randles–Ševčík, Laviron) and no k⁰ estimation yet.
 - The scan rate is not needed (and not read).
 
@@ -184,6 +194,8 @@ vom simulate slow.txt --k0 1e-3 --Cdl 300 --noise 0.03 --seed 1
 pip install -e ".[gui,test]"
 pytest
 ```
+
+To run the tutorial notebook: `pip install jupyter`, then `jupyter lab examples/tutorial.ipynb`.
 
 ## License
 

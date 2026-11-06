@@ -55,15 +55,14 @@ def _evaluate(uploads, folder, pattern, recursive, baseline, edge, gap, width, b
 
 
 def _plot(results, name):
-    import matplotlib
-    matplotlib.use("Agg", force=False)
-    import matplotlib.pyplot as plt
+    from matplotlib.figure import Figure
 
     from .plot import plot_result
-    plt.close("all")
     if not results or name not in results:
         return None
-    return plot_result(results[name])
+    fig = Figure(figsize=(7, 4.5))
+    plot_result(results[name], ax=fig.subplots())
+    return fig
 
 
 def build_app():

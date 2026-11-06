@@ -13,9 +13,8 @@ def plot_result(res: CurveResult, ax=None, title: str | None = None):
     Currents are shown in µA. Dashed lines are the baselines, vertical segments the peak heights,
     the grey cross the reference levels used by Nicholson's formula.
     """
-    import matplotlib.pyplot as plt
-
     if ax is None:
+        import matplotlib.pyplot as plt
         fig, ax = plt.subplots(figsize=(7, 4.5))
     else:
         fig = ax.figure
@@ -59,17 +58,15 @@ def save_plots(results, directory, dpi: int = 110):
     """Save one PNG per :class:`CurveResult` into ``directory``; returns the list of paths."""
     from pathlib import Path
 
-    import matplotlib
-    matplotlib.use("Agg", force=False)
-    import matplotlib.pyplot as plt
+    from matplotlib.figure import Figure  # no pyplot: works headless and leaves notebooks alone
 
     directory = Path(directory)
     directory.mkdir(parents=True, exist_ok=True)
     out = []
     for res in results:
-        fig = plot_result(res)
+        fig = Figure(figsize=(7, 4.5))
+        plot_result(res, ax=fig.subplots())
         p = directory / (Path(res.values["file"] or "curve").stem + ".png")
         fig.savefig(p, dpi=dpi)
-        plt.close(fig)
         out.append(p)
     return out
