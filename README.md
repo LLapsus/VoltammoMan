@@ -31,10 +31,13 @@ or from a local copy:
 git clone https://github.com/LLapsus/VoltammoMan.git
 cd VoltammoMan
 python -m venv .venv
-.venv/bin/pip install -e ".[gui]"        # Windows: .venv\Scripts\pip install -e ".[gui]"
+source .venv/bin/activate                # Windows: .venv\Scripts\activate
+pip install -e ".[gui]"
 ```
 
-Without `[gui]` everything except the graphical interface works.
+The `vom` command is installed into the virtual environment, so activate it (the `activate` line
+above) in every new terminal before using `vom`. Without `[gui]` everything except the graphical
+interface works.
 
 ## Quick start
 
