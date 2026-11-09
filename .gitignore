@@ -8,3 +8,6 @@ dist/
 voltammoman_results.*
 voltammoman_plots/
 voltammoman_examples/
+examples/demo_curves/
+examples/demo_plots/
+examples/demo_results.*
