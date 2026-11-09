@@ -208,6 +208,31 @@ pytest
 
 To run the tutorial notebook: `pip install jupyter`, then `jupyter lab examples/tutorial.ipynb`.
 
+## Related software
+
+Other free tools for cyclic voltammetry, with different scopes (not tested in depth here):
+
+- [PySimpleCV](https://github.com/kevinsmia1939/PySimpleCV): interactive GUI for single curves,
+  peak detection, Nicholson's method, Randles–Ševčík analysis.
+- [diffusional-fitter](https://github.com/davedavedavem/diffusional-fitter): return peak current
+  measured against a fitted diffusional (Cottrell-type) baseline instead of a straight line.
+- [SD-fitter](https://github.com/davedavedavem/SD-fitter): semiderivative deconvolution of
+  voltammograms with overlapping peaks.
+- [CV Analyzer in GloriusGroup/lab_tools](https://github.com/GloriusGroup/lab_tools): peak
+  detection, onset, Ep/2 and reversibility classification.
+- [eL-Chem Viewer](https://doi.org/10.3390/s140813943): freeware desktop program for viewing and
+  processing electroanalytical data.
+
+VoltammoMan focuses on unattended batch evaluation of instrument exports into one table with
+flags and control plots.
+
+## Disclaimer
+
+VoltammoMan is research software provided "as is", without warranty of any kind (see the
+[LICENSE](LICENSE)). The values are computed automatically and can be wrong, especially for
+broad, weak or distorted peaks. Check the control plots and verify important results
+independently; the authors are not responsible for conclusions drawn from its output.
+
 ## License
 
 MIT, see [LICENSE](LICENSE).
